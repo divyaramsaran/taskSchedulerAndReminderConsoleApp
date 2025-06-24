@@ -1,3 +1,10 @@
+const normalTask = (description, time) => {
+  const timeOutId = setTimeout(() => {
+    console.log(description);
+  }, time * 1000);
+  return "Task Added Successfully";
+};
+
 const addTask = () => {
   console.log("1.Normal Task\n2.Recurring Task");
   const taskType = Number(prompt("Enter task type"));
@@ -7,7 +14,7 @@ const addTask = () => {
   }
   const description = prompt("Enter task description");
   const time = Number(prompt("Enter time in (Seconds):"));
-  return taskType === 1 ? "normalTask" : "recurringTask";
+  return taskType === 1 ? normalTask(description, time) : "recurringTask";
 };
 
 const commands = () => {
@@ -16,7 +23,9 @@ const commands = () => {
     "1.Add Task\n2.List Tasks\n3.Cancel Reminder\n4.Mark as Completed\n5.Exit"
   );
   const choice = Number(prompt("Enter your choice:"));
-  return operations[choice - 1]();
+  console.log(operations[choice - 1]());
+  const continueOrNot = confirm("Enter Want To Continue Or Not");
+  return continueOrNot ? commands() : "Tasks Saved";
 };
 
 console.log(commands());
