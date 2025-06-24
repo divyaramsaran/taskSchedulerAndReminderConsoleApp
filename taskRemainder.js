@@ -1,3 +1,16 @@
+const isPending = (taskTime) => {
+  const [hours, minutes, seconds] = Date().split(" ")[4].split(":");
+  const isHoursCompleted = taskTime[0] - hours === 0 || taskTime[0] - hours < 0;
+  const isMinutesCompleted =
+    taskTime[1] - minutes === 0 || taskTime[1] - minutes < 0;
+  const isSecondsCompleted =
+    taskTime[2] - minutes === 0 || taskTime[2] - minutes < 0;
+
+  return isHoursCompleted || isMinutesCompleted || isSecondsCompleted
+    ? "Pending"
+    : "Completed";
+};
+
 const calcTime = () => {
   const [hours, minutes, seconds] = Date().split(" ")[4].split(":");
   return [hours, minutes, seconds];
@@ -45,7 +58,7 @@ const addTask = () => {
 const list = (tasks) => {
   return tasks.map((taskInfo) => {
     const [description, id, time] = taskInfo;
-    return `${taskInfo[id]} ${description} Status Next Reminder`;
+    return `${taskInfo[id]} ${description} ${isPending(time)} Next Reminder`;
   });
 };
 
@@ -63,7 +76,7 @@ const commands = (tasksList) => {
   }
 
   if (choice === 2) {
-    return list(tasksList).join('\n');
+    return list(tasksList).join("\n");
   }
   const continueOrNot = confirm("Enter Want To Continue Or Not");
   return continueOrNot ? commands(tasksList) : "Tasks Saved";
