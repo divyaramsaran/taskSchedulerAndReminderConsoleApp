@@ -6,9 +6,7 @@ const isPending = (taskTime) => {
   const isSecondsCompleted =
     taskTime[2] - minutes === 0 || taskTime[2] - minutes < 0;
 
-  return isHoursCompleted || isMinutesCompleted || isSecondsCompleted
-    ? "Pending"
-    : "Completed";
+  return isHoursCompleted || isMinutesCompleted || isSecondsCompleted;
 };
 
 const calcTime = () => {
@@ -58,7 +56,9 @@ const addTask = () => {
 const list = (tasks) => {
   return tasks.map((taskInfo) => {
     const [description, id, time] = taskInfo;
-    return `${taskInfo[id]} ${description} ${isPending(time)} Next Reminder`;
+    const completedOrNot = isPending(time) ? "Pending" : "Completed";
+    const reminder = completedOrNot === 'Completed' ? 0 : 'time';
+    return `${taskInfo[id]} ${description} ${completedOrNot} ${reminder}`;
   });
 };
 
