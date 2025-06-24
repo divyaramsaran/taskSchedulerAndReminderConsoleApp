@@ -1,3 +1,10 @@
+const recurringTask = (description, time) => {
+  const intervalId = setInterval(() => {
+    console.log(description);
+  }, time * 1000);
+  return "Task Added Successfully";
+};
+
 const normalTask = (description, time) => {
   const timeOutId = setTimeout(() => {
     console.log(description);
@@ -14,7 +21,9 @@ const addTask = () => {
   }
   const description = prompt("Enter task description");
   const time = Number(prompt("Enter time in (Seconds):"));
-  return taskType === 1 ? normalTask(description, time) : "recurringTask";
+  return taskType === 1
+    ? normalTask(description, time)
+    : recurringTask(description, time);
 };
 
 const commands = () => {
