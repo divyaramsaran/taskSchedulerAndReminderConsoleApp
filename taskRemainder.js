@@ -75,9 +75,7 @@ const taskLists = (tasks) => {
 const commands = (tasksList) => {
   const operations = [addTask, taskLists];
   console.clear();
-  console.log(
-    "1.Add Task\n2.List Tasks\n3.Cancel Reminder\n4.Mark as Completed\n5.Exit"
-  );
+  console.log("1.Add Task\n2.List Tasks\n3.Cancel Reminder\n4.Exit");
   const choice = Number(prompt("Enter your choice:"));
 
   switch (choice) {
@@ -85,12 +83,11 @@ const commands = (tasksList) => {
       const { msg, list } = operations[choice - 1]();
       tasksList.push(list);
       console.log(msg);
-      console.log(tasksList);
-
       break;
 
     case 2:
-      return taskLists(tasksList).join("\n");
+      console.log(taskLists(tasksList).join("\n"));
+      break;
 
     case 3:
       const cancelTaskId = Number(prompt("Enter Task Id To Cancel"));
@@ -99,9 +96,8 @@ const commands = (tasksList) => {
         return task[1] != cancelTaskId;
       });
 
-      break;
-    default:
-      break;
+    case 4:
+      return exit();
   }
   const continueOrNot = confirm("Enter Want To Continue Or Not");
   return continueOrNot ? commands(tasksList) : "Tasks Saved";
