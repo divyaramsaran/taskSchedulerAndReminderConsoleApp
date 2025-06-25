@@ -1,4 +1,9 @@
-const cancelReminder = (id) => {
+const cancelRecurringReminder = (id) => {
+  console.log("Successfully Cancled The Task");
+  clearInterval(id);
+};
+
+const cancelNormalReminder = (id) => {
   console.log("Successfully Cancled The Task");
   clearTimeout(id);
 };
@@ -31,6 +36,7 @@ const recurringTask = (description, time) => {
   return {
     msg: `Task ${description} scheduled in ${time} seconds.`,
     task: description,
+    type: 2,
     timerId: intervalId,
     reminderTime: calcTime(),
     intervalTime: time,
@@ -45,6 +51,7 @@ const normalTask = (description, time) => {
   return {
     msg: `Task ${description} scheduled in ${time} seconds.`,
     task: description,
+    type: 1,
     timerId: timeOutId,
     reminderTime: calcTime(),
     intervalTime: time,
@@ -99,7 +106,13 @@ const commands = (tasksList) => {
 
     case 3:
       const cancelTaskId = Number(prompt("Enter Task Id To Cancel"));
-      cancelReminder(cancelTaskId);
+      const targetObj = tasksList.filter((task) => {
+        return task.timerId === cancelTaskId;
+      });
+      targetObj.type === 1
+        ? cancelNormalReminder(cancelTaskId)
+        : cancelRecurringReminder(cancelTaskId);
+
       tasksList = tasksList.filter((task) => {
         return task.timerId != cancelTaskId;
       });
