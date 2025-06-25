@@ -87,12 +87,22 @@ const taskLists = (tasks) => {
   });
 };
 
-const commands = (tasksList) => {
-  const operations = [addTask, taskLists];
-  console.clear();
+const extractChoice = () => {
   console.log("1.Add Task\n2.List Tasks\n3.Cancel Reminder\n4.Exit");
   const choice = Number(prompt("Enter your choice:"));
 
+  if (isNaN(choice) || choice > 4 || choice < 1) {
+    console.clear();
+    console.log("Enter a Valid Choice");
+    return extractChoice();
+  }
+  return choice;
+};
+
+const commands = (tasksList) => {
+  const operations = [addTask, taskLists];
+  console.clear();
+  const choice = extractChoice();
   switch (choice) {
     case 1:
       const taskObj = operations[choice - 1]();
