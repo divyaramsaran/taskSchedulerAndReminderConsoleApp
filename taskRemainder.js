@@ -99,6 +99,18 @@ const extractChoice = () => {
   return choice;
 };
 
+const extractAndValidateCancelId = (tasksList) => {
+  const cancelTaskId = Number(prompt("Enter Task Id To Cancel"));
+  const targetObj = tasksList.filter((task) => {
+    return task.timerId === cancelTaskId;
+  });
+
+  if (targetObj.length === 0) {
+    return extractAndValidateCancelId(tasksList);
+  }
+  return [targetObj, cancelTaskId];
+};
+
 const commands = (tasksList) => {
   const operations = [addTask, taskLists];
   console.clear();
@@ -115,10 +127,7 @@ const commands = (tasksList) => {
       break;
 
     case 3:
-      const cancelTaskId = Number(prompt("Enter Task Id To Cancel"));
-      const targetObj = tasksList.filter((task) => {
-        return task.timerId === cancelTaskId;
-      });
+      const [targetObj, cancelTaskId] = extractAndValidateCancelId(tasksList);
       targetObj.type === 1
         ? cancelNormalReminder(cancelTaskId)
         : cancelRecurringReminder(cancelTaskId);
