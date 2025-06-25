@@ -1,3 +1,8 @@
+const cancelReminder = (id) => {
+  console.log("Successfully Cancled The Task");
+  clearTimeout(id);
+};
+
 const isPending = (taskTime, nextReminder) => {
   const [hours, minutes, seconds] = Date().split(" ")[4].split(":");
   const isHoursCompleted = taskTime[0] - hours <= 0;
@@ -58,7 +63,7 @@ const addTask = () => {
     : recurringTask(description, time);
 };
 
-const list = (tasks) => {
+const taskLists = (tasks) => {
   return tasks.map((taskInfo) => {
     const [description, id, time, nextReminder] = taskInfo;
     const [completedOrNot, reminder] = isPending(time, nextReminder);
@@ -68,21 +73,37 @@ const list = (tasks) => {
 };
 
 const commands = (tasksList) => {
-  const operations = [addTask, list];
+  const operations = [addTask, taskLists];
   console.clear();
   console.log(
     "1.Add Task\n2.List Tasks\n3.Cancel Reminder\n4.Mark as Completed\n5.Exit"
   );
   const choice = Number(prompt("Enter your choice:"));
 
+  switch (choice) {
+    case 1:
+      const { msg, list } = operations[choice - 1]();
+      tasksList.push(list);
+      console.log(msg);
+
+      break;
+
+    case 2:
+      return taskLists(tasksList).join("\n");
+      break;
+
+    case 3:
+      const cancelTaskId = Number(prompt("Enter Task Id To Cancel"));
+      cancelReminder(cancelTaskId);
+      break;
+    default:
+      break;
+  }
+
   if (choice === 1) {
-    const { msg, list } = operations[choice - 1]();
-    tasksList.push(list);
-    console.log(msg);
   }
 
   if (choice === 2) {
-    return list(tasksList).join("\n");
   }
   const continueOrNot = confirm("Enter Want To Continue Or Not");
   return continueOrNot ? commands(tasksList) : "Tasks Saved";
