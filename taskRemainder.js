@@ -85,25 +85,23 @@ const commands = (tasksList) => {
       const { msg, list } = operations[choice - 1]();
       tasksList.push(list);
       console.log(msg);
+      console.log(tasksList);
 
       break;
 
     case 2:
       return taskLists(tasksList).join("\n");
-      break;
 
     case 3:
       const cancelTaskId = Number(prompt("Enter Task Id To Cancel"));
       cancelReminder(cancelTaskId);
+      tasksList = tasksList.filter((task) => {
+        return task[1] != cancelTaskId;
+      });
+
       break;
     default:
       break;
-  }
-
-  if (choice === 1) {
-  }
-
-  if (choice === 2) {
   }
   const continueOrNot = confirm("Enter Want To Continue Or Not");
   return continueOrNot ? commands(tasksList) : "Tasks Saved";
