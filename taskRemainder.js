@@ -30,7 +30,11 @@ const recurringTask = (description, time) => {
   }, time * 1000);
   return {
     msg: `Task ${description} scheduled in ${time} seconds.`,
-    list: [description, intervalId, calcTime(), time],
+    task: description,
+    timerId: intervalId,
+    reminderTime: calcTime(),
+    intervalTime: time,
+    status: "active",
   };
 };
 
@@ -40,7 +44,11 @@ const normalTask = (description, time) => {
   }, time * 1000);
   return {
     msg: `Task ${description} scheduled in ${time} seconds.`,
-    list: [description, timeOutId, calcTime(), time],
+    task: description,
+    timerId: timeOutId,
+    reminderTime: calcTime(),
+    intervalTime: time,
+    status: "active",
   };
 };
 
@@ -65,10 +73,10 @@ const addTask = () => {
 
 const taskLists = (tasks) => {
   return tasks.map((taskInfo) => {
-    const [description, id, time, nextReminder] = taskInfo;
-    const [completedOrNot, reminder] = isPending(time, nextReminder);
+    const { task, timerId, reminderTime, intervalTime } = taskInfo;
+    const [completedOrNot, reminder] = isPending(reminderTime, intervalTime);
     const pendingOrCompleted = completedOrNot ? "Pending" : "Completed";
-    return `${id} ${description} ${pendingOrCompleted} ${reminder}`;
+    return `${timerId} ${task} ${pendingOrCompleted} ${reminder}`;
   });
 };
 
@@ -80,9 +88,9 @@ const commands = (tasksList) => {
 
   switch (choice) {
     case 1:
-      const { msg, list } = operations[choice - 1]();
-      tasksList.push(list);
-      console.log(msg);
+      const taskObj = operations[choice - 1]();
+      tasksList.push(taskObj);
+      console.log(taskObj.msg);
       break;
 
     case 2:
@@ -93,7 +101,7 @@ const commands = (tasksList) => {
       const cancelTaskId = Number(prompt("Enter Task Id To Cancel"));
       cancelReminder(cancelTaskId);
       tasksList = tasksList.filter((task) => {
-        return task[1] != cancelTaskId;
+        return task.timerId != cancelTaskId;
       });
 
     case 4:
