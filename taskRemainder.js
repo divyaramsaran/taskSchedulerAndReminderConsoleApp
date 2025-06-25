@@ -1,12 +1,17 @@
-const isPending = (taskTime) => {
+const isPending = (taskTime, nextReminder) => {
   const [hours, minutes, seconds] = Date().split(" ")[4].split(":");
-  const isHoursCompleted = taskTime[0] - hours === 0 || taskTime[0] - hours < 0;
-  const isMinutesCompleted =
-    taskTime[1] - minutes === 0 || taskTime[1] - minutes < 0;
-  const isSecondsCompleted =
-    taskTime[2] - minutes === 0 || taskTime[2] - minutes < 0;
-
-  return isHoursCompleted || isMinutesCompleted || isSecondsCompleted;
+  const isHoursCompleted = taskTime[0] - hours <= 0;
+  const isMinutesCompleted = taskTime[1] - minutes <= 0;
+  const isSecondsCompleted = taskTime[2] - seconds <= 0;
+  const reminingHours = hours - taskTime[0];
+  const reminingMinutes = reminingHours * 60 + (minutes - taskTime[1]);
+  const reminingSeconds = reminingMinutes * 60 + (seconds - taskTime[2]);
+  const timeCompleted = reminingSeconds % nextReminder;
+  const reminder = timeCompleted === 0 ? nextReminder : timeCompleted;
+  return [
+    isHoursCompleted || isMinutesCompleted || isSecondsCompleted,
+    reminder,
+  ];
 };
 
 const calcTime = () => {
@@ -20,7 +25,7 @@ const recurringTask = (description, time) => {
   }, time * 1000);
   return {
     msg: `Task ${description} scheduled in ${time} seconds.`,
-    list: [description, intervalId, calcTime()],
+    list: [description, intervalId, calcTime(), time],
   };
 };
 
@@ -30,7 +35,7 @@ const normalTask = (description, time) => {
   }, time * 1000);
   return {
     msg: `Task ${description} scheduled in ${time} seconds.`,
-    list: [description, timeOutId, calcTime()],
+    list: [description, timeOutId, calcTime(), time],
   };
 };
 
@@ -55,15 +60,16 @@ const addTask = () => {
 
 const list = (tasks) => {
   return tasks.map((taskInfo) => {
-    const [description, id, time] = taskInfo;
-    const completedOrNot = isPending(time) ? "Pending" : "Completed";
-    const reminder = completedOrNot === 'Completed' ? 0 : 'time';
-    return `${taskInfo[id]} ${description} ${completedOrNot} ${reminder}`;
+    const [description, id, time, nextReminder] = taskInfo;
+    const [completedOrNot, reminder] = isPending(time, nextReminder);
+    const pendingOrCompleted = completedOrNot ? "Pending" : "Completed";
+    return `${id} ${description} ${pendingOrCompleted} ${reminder}`;
   });
 };
 
 const commands = (tasksList) => {
   const operations = [addTask, list];
+  console.clear();
   console.log(
     "1.Add Task\n2.List Tasks\n3.Cancel Reminder\n4.Mark as Completed\n5.Exit"
   );
