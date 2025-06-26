@@ -13,11 +13,14 @@ const isPending = (taskTime, nextReminder) => {
   const isHoursCompleted = taskTime[0] - hours <= 0;
   const isMinutesCompleted = taskTime[1] - minutes <= 0;
   const isSecondsCompleted = taskTime[2] - seconds <= 0;
-  const reminingHours = hours - taskTime[0];
-  const reminingMinutes = reminingHours * 60 + (minutes - taskTime[1]);
-  const reminingSeconds = reminingMinutes * 60 + (seconds - taskTime[2]);
-  const timeCompleted = reminingSeconds % nextReminder;
-  const reminder = timeCompleted === 0 ? nextReminder : timeCompleted;
+
+  const currentTimeInSeconds = hours * 3600 + minutes * 60 + seconds;
+  const timeWhenTaskInitialised =
+    taskTime[0] * 3600 + taskTime[1] * 60 + taskTime[2];
+
+  const timeCompleted = timeWhenTaskInitialised - currentTimeInSeconds;
+
+  const reminder = timeCompleted <= 0 ? nextReminder : timeCompleted;
   return [
     isHoursCompleted || isMinutesCompleted || isSecondsCompleted,
     reminder,
@@ -135,7 +138,7 @@ const commands = (tasksList) => {
       tasksList = tasksList.filter((task) => {
         return task.timerId != cancelTaskId;
       });
-
+      break;
     case 4:
       return exit();
   }
