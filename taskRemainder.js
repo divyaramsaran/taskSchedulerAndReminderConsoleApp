@@ -6,22 +6,22 @@ const cancelNormalReminder = (id) => {
   clearTimeout(id);
 };
 
-const isPending = (taskTime, nextReminder) => {
-  const [hours, minutes, seconds] = Date().split(" ")[4].split(":");
-  const isHoursCompleted = taskTime[0] - hours <= 0;
-  const isMinutesCompleted = taskTime[1] - minutes <= 0;
-  const isSecondsCompleted = taskTime[2] - seconds <= 0;
+const getTaskStatus = (task) => {
+  // Calculate elapsed time in seconds
+  const elapsedSeconds = (Date.now() - task.createdAt) / 1000;
 
-  const currentTimeInSeconds = hours * 3600 + minutes * 60 + seconds;
-  const timeWhenTaskInitialised =
-    taskTime[0] * 3600 + taskTime[1] * 60 + taskTime[2];
+  // Calculate remaining time
+  const remaining = Math.max(0, task.delay - elapsedSeconds);
 
-  const timeCompleted = timeWhenTaskInitialised - currentTimeInSeconds;
-  const reminder = timeCompleted <= 0 ? nextReminder : timeCompleted;
-  return [
-    isHoursCompleted || isMinutesCompleted || isSecondsCompleted,
-    reminder,
-  ];
+  // Determine status
+  const isPending = remaining > 0;
+  const status = isPending ? "pending" : "completed";
+
+  return {
+    status,
+    remaining: Math.round(remaining),
+    nextExecution: task.createdAt + task.delay * 1000,
+  };
 };
 
 const calcTime = () => {
@@ -30,32 +30,35 @@ const calcTime = () => {
 };
 
 const recurringTask = (description, time) => {
-  const intervalId = setInterval(() => {
-    console.log(description);
+  const createdAt = Date.now();
+  const timerId = setInterval(() => {
+    console.log(`🔔 Reminder: ${description}`);
   }, time * 1000);
+
   return {
-    msg: `Task ${description} scheduled in ${time} seconds.`,
-    task: description,
-    type: 2,
-    timerId: intervalId,
-    reminderTime: calcTime(),
-    intervalTime: time,
-    status: "active",
+    id: taskIdCounter++,
+    description,
+    type: "recurring",
+    createdAt,
+    delay: time,
+    timerId,
+    status: "pending",
   };
 };
-
 const normalTask = (description, time) => {
-  const timeOutId = setTimeout(() => {
-    console.log(description);
+  const createdAt = Date.now();
+  const timerId = setTimeout(() => {
+    console.log(`🔔 Reminder: ${description}`);
   }, time * 1000);
+
   return {
-    msg: `Task ${description} scheduled in ${time} seconds.`,
-    task: description,
-    type: 1,
-    timerId: timeOutId,
-    reminderTime: calcTime(),
-    intervalTime: time,
-    status: "active",
+    id: taskIdCounter++,
+    description,
+    type: "normal",
+    createdAt,
+    delay: time,
+    timerId,
+    status: "pending",
   };
 };
 
@@ -91,11 +94,9 @@ const addTask = () => {
 };
 
 const taskLists = (tasks) => {
-  return tasks.map((taskInfo) => {
-    const { task, timerId, reminderTime, intervalTime } = taskInfo;
-    const [completedOrNot, reminder] = isPending(reminderTime, intervalTime);
-    const pendingOrCompleted = completedOrNot ? "Pending" : "Completed";
-    return `${timerId} ${task} ${pendingOrCompleted} ${reminder}`;
+  return tasks.map((task) => {
+    const { status, remaining } = getTaskStatus(task);
+    return `ID: ${task.id} | ${task.description} | ${status} | Next: ${remaining}s`;
   });
 };
 
@@ -105,7 +106,7 @@ const extractChoice = () => {
   );
   const choice = Number(prompt("Enter your choice:"));
 
-  if (isNaN(choice) || choice > 4 || choice < 1) {
+  if (isNaN(choice) || choice > 5 || choice < 1) {
     console.clear();
     console.log("Enter a Valid Choice");
     return extractChoice();
