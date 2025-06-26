@@ -19,7 +19,6 @@ const isPending = (taskTime, nextReminder) => {
     taskTime[0] * 3600 + taskTime[1] * 60 + taskTime[2];
 
   const timeCompleted = timeWhenTaskInitialised - currentTimeInSeconds;
-
   const reminder = timeCompleted <= 0 ? nextReminder : timeCompleted;
   return [
     isHoursCompleted || isMinutesCompleted || isSecondsCompleted,
@@ -114,13 +113,24 @@ const extractAndValidateCancelId = (tasksList) => {
   return [targetObj, cancelTaskId];
 };
 
+const markAsCompleted = () => {};
+
+const cancelTask = (tasksList) => {
+  const [targetObj, cancelTaskId] = extractAndValidateCancelId(tasksList);
+  targetObj.type === 1
+    ? cancelNormalReminder(cancelTaskId)
+    : cancelRecurringReminder(cancelTaskId);
+  return (tasksList = tasksList.filter((task) => {
+    return task.timerId != cancelTaskId;
+  }));
+};
+
 const commands = (tasksList) => {
-  const operations = [addTask, taskLists];
   console.clear();
   const choice = extractChoice();
   switch (choice) {
     case 1:
-      const taskObj = operations[choice - 1]();
+      const taskObj = addTask();
       tasksList.push(taskObj);
       console.log(taskObj.msg);
       break;
@@ -130,16 +140,12 @@ const commands = (tasksList) => {
       break;
 
     case 3:
-      const [targetObj, cancelTaskId] = extractAndValidateCancelId(tasksList);
-      targetObj.type === 1
-        ? cancelNormalReminder(cancelTaskId)
-        : cancelRecurringReminder(cancelTaskId);
-
-      tasksList = tasksList.filter((task) => {
-        return task.timerId != cancelTaskId;
-      });
+      cancelTask(tasksList);
       break;
     case 4:
+      markAsCompleted();
+      break;
+    case 5:
       return exit();
   }
   const continueOrNot = confirm("Enter Want To Continue Or Not");
