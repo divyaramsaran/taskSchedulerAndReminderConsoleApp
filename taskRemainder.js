@@ -1,10 +1,8 @@
 const cancelRecurringReminder = (id) => {
-  console.log("Successfully Cancled The Task");
   clearInterval(id);
 };
 
 const cancelNormalReminder = (id) => {
-  console.log("Successfully Cancled The Task");
   clearTimeout(id);
 };
 
@@ -90,7 +88,9 @@ const taskLists = (tasks) => {
 };
 
 const extractChoice = () => {
-  console.log("1.Add Task\n2.List Tasks\n3.Cancel Reminder\n4.Exit");
+  console.log(
+    "1.Add Task\n2.List Tasks\n3.Cancel Reminder\n4.Mark As Completed\n5.Exit"
+  );
   const choice = Number(prompt("Enter your choice:"));
 
   if (isNaN(choice) || choice > 4 || choice < 1) {
@@ -102,7 +102,7 @@ const extractChoice = () => {
 };
 
 const extractAndValidateCancelId = (tasksList) => {
-  const cancelTaskId = Number(prompt("Enter Task Id To Cancel"));
+  const cancelTaskId = Number(prompt("Enter Task Id:"));
   const targetObj = tasksList.filter((task) => {
     return task.timerId === cancelTaskId;
   });
@@ -113,16 +113,18 @@ const extractAndValidateCancelId = (tasksList) => {
   return [targetObj, cancelTaskId];
 };
 
-const markAsCompleted = () => {};
+const markAsCompleted = () => {
+  return `Task marked as completed and reminder cancelled.`;
+};
 
 const cancelTask = (tasksList) => {
   const [targetObj, cancelTaskId] = extractAndValidateCancelId(tasksList);
   targetObj.type === 1
     ? cancelNormalReminder(cancelTaskId)
     : cancelRecurringReminder(cancelTaskId);
-  return (tasksList = tasksList.filter((task) => {
+  return tasksList.filter((task) => {
     return task.timerId != cancelTaskId;
-  }));
+  });
 };
 
 const commands = (tasksList) => {
@@ -140,16 +142,20 @@ const commands = (tasksList) => {
       break;
 
     case 3:
-      cancelTask(tasksList);
+      tasksList = cancelTask(tasksList);
+      console.log("Successfully Cancled The Task");
       break;
+
     case 4:
-      markAsCompleted();
+      tasksList = cancelTask(tasksList);
+      console.log(markAsCompleted());
       break;
+
     case 5:
       return exit();
   }
   const continueOrNot = confirm("Enter Want To Continue Or Not");
-  return continueOrNot ? commands(tasksList) : "Tasks Saved";
+  return continueOrNot ? commands(tasksList) : exit();
 };
 
 console.log(commands([]));
