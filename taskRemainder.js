@@ -63,6 +63,16 @@ const exit = () => {
   return "Thanks for using our Task Reminder App";
 };
 
+const extractDescription = () => {
+  const description = prompt("Enter task description");
+  if (description.length === 0) {
+    console.clear();
+    console.log("Enter A Valid Description");
+    return extractDescription();
+  }
+  return description;
+};
+
 const addTask = () => {
   console.log("1.Normal Task\n2.Recurring Task");
   const taskType = Number(prompt("Enter task type"));
@@ -71,8 +81,10 @@ const addTask = () => {
     console.log("Enter A Valid Task Type");
     return addTask();
   }
-  const description = prompt("Enter task description");
+
+  const description = extractDescription();
   const time = Number(prompt("Enter time in (Seconds):"));
+
   return taskType === 1
     ? normalTask(description, time)
     : recurringTask(description, time);
