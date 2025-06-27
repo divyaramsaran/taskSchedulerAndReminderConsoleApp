@@ -150,6 +150,10 @@ const commands = (tasksList) => {
       break;
 
     case 3:
+      if (tasksList.length === 0) {
+        console.log("No Tasks Added Yet");
+        return commands(tasksList);
+      }
       tasksList = cancelTask(tasksList);
       console.log("Successfully Cancled The Task");
       break;
