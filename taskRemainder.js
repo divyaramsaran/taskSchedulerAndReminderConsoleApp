@@ -7,13 +7,8 @@ const cancelNormalReminder = (id) => {
 };
 
 const getTaskStatus = (task) => {
-  // Calculate elapsed time in seconds
   const elapsedSeconds = (Date.now() - task.createdAt) / 1000;
-
-  // Calculate remaining time
   const remaining = Math.max(0, task.delay - elapsedSeconds);
-
-  // Determine status
   const isPending = remaining > 0;
   const status = isPending ? "pending" : "completed";
 
@@ -36,7 +31,7 @@ const recurringTask = (description, time) => {
   }, time * 1000);
 
   return {
-    id: taskIdCounter++,
+    id: timerId,
     description,
     type: "recurring",
     createdAt,
@@ -52,7 +47,7 @@ const normalTask = (description, time) => {
   }, time * 1000);
 
   return {
-    id: taskIdCounter++,
+    id: timerId,
     description,
     type: "normal",
     createdAt,
@@ -147,7 +142,7 @@ const commands = (tasksList) => {
     case 1:
       const taskObj = addTask();
       tasksList.push(taskObj);
-      console.log(taskObj.msg);
+      console.log(taskObj.description);
       break;
 
     case 2:
