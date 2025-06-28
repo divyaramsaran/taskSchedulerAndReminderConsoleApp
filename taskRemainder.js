@@ -1,9 +1,9 @@
-const cancelRecurringReminder = (id) => {
-  clearInterval(id);
+const cancelRecurringReminder = (taskId) => {
+  clearInterval(taskId);
 };
 
-const cancelNormalReminder = (id) => {
-  clearTimeout(id);
+const cancelNormalReminder = (taskId) => {
+  clearTimeout(taskId);
 };
 
 const getTaskStatus = (task) => {
@@ -24,34 +24,34 @@ const calcTime = () => {
   return [hours, minutes, seconds];
 };
 
-const recurringTask = (description, time, count) => {
+const recurringTask = (description, intervalSeconds, count) => {
   const createdAt = Date.now();
   const timerId = setInterval(() => {
     console.log(`🔔 Reminder: ${description}`);
-  }, time * 1000);
+  }, intervalSeconds * 1000);
 
   return {
     id: count,
     description,
     type: "recurring",
     createdAt,
-    delay: time,
+    delay: intervalSeconds,
     timerId,
     status: "pending",
   };
 };
-const normalTask = (description, time, count) => {
+const normalTask = (description, intervalSeconds, count) => {
   const createdAt = Date.now();
   const timerId = setTimeout(() => {
     console.log(`🔔 Reminder: ${description}`);
-  }, time * 1000);
+  }, intervalSeconds * 1000);
 
   return {
     id: count,
     description,
     type: "normal",
     createdAt,
-    delay: time,
+    delay: intervalSeconds,
     timerId,
     status: "pending",
   };
@@ -59,13 +59,13 @@ const normalTask = (description, time, count) => {
 
 const taskManager = () => {
   let taskIdCounter = 0;
-  return (description, time, type) => {
+  return (description, intervalSeconds, type) => {
     taskIdCounter++;
     console.log(taskIdCounter);
 
     return type === 1
-      ? normalTask(description, time, taskIdCounter)
-      : recurringTask(description, time, taskIdCounter);
+      ? normalTask(description, intervalSeconds, taskIdCounter)
+      : recurringTask(description, intervalSeconds, taskIdCounter);
   };
 };
 
@@ -119,14 +119,14 @@ const extractChoice = () => {
   return choice;
 };
 
-const extractAndValidateCancelId = (tasksList) => {
+const extractAndValidateCancelId = (tasks) => {
   const cancelTaskId = Number(prompt("Enter Task Id:"));
-  const targetObj = tasksList.filter((task) => {
+  const targetObj = tasks.filter((task) => {
     return task.timerId === cancelTaskId;
   });
 
   if (targetObj.length === 0) {
-    return extractAndValidateCancelId(tasksList);
+    return extractAndValidateCancelId(tasks);
   }
   return [targetObj, cancelTaskId];
 };
@@ -143,32 +143,32 @@ const cancelTask = (tasksList) => {
   });
 };
 
-const commands = (tasksList, createTask) => {
+const mainMenu = (tasks, createTask) => {
   console.clear();
   const choice = extractChoice();
   switch (choice) {
     case 1:
       const [description, time, taskType] = extractTypeAndDescription();
       const taskObj = createTask(description, time, taskType);
-      tasksList.push(taskObj);
+      tasks.push(taskObj);
       console.log(taskObj.description);
       break;
 
     case 2:
-      console.log(taskLists(tasksList).join("\n"));
+      console.log(taskLists(tasks).join("\n"));
       break;
 
     case 3:
-      if (tasksList.length === 0) {
+      if (tasks.length === 0) {
         console.log("No Tasks Added Yet");
-        return commands(tasksList, createTask);
+        return mainMenu(tasks, createTask);
       }
-      tasksList = cancelTask(tasksList);
+      tasks = cancelTask(tasks);
       console.log("Successfully Cancled The Task");
       break;
 
     case 4:
-      tasksList = cancelTask(tasksList);
+      tasks = cancelTask(tasks);
       console.log(markAsCompleted());
       break;
 
@@ -176,8 +176,8 @@ const commands = (tasksList, createTask) => {
       return exit();
   }
   const continueOrNot = confirm("Enter Want To Continue Or Not");
-  return continueOrNot ? commands(tasksList, createTask) : exit();
+  return continueOrNot ? mainMenu(tasks, createTask) : exit();
 };
 const createTask = taskManager();
 
-console.log(commands([], createTask));
+console.log(mainMenu([], createTask));
